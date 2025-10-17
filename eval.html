@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+</head>
+<body>
+    <textarea id="input"></textarea>
+    <br>
+    <button id="run">Evaluate</button>
+
+    <script>
+        const input = document.getElementById("input");
+        const run = document.getElementById("run");
+
+        run.addEventListener("click", () => {
+            const url = `data:text/javascript;charset=utf-8;base64,${btoa(input.value)}`;
+
+            const script = document.createElement("script");
+            script.src = url;
+            document.body.appendChild(script);
+        })
+    </script>
+</body>
+</html>
