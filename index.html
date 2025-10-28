@@ -17,19 +17,6 @@
         const button = document.getElementById("open");
         const status = document.getElementById("status");
 
-        const src = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-            <title>Google</title>
-        </head>
-        <body>
-            _SOURCE_
-        </body>
-        </html>
-        `
-
         button.onclick = async function() {
             try {
                 status.innerText = "Fetching...";
@@ -42,7 +29,7 @@
                 esrc = await esrc.text();
 
                 let win = window.open("about:blank");
-                win.document.write(src.replace("_SOURCE_",esrc));
+                win.document.write(esrc);
                 win.document.close();
 
                 window.location.replace("https://www.google.com");
@@ -54,3 +41,4 @@
     </script>
 </body>
 </html>
+
