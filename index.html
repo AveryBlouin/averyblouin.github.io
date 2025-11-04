@@ -8,7 +8,7 @@
 <body>
     <h1 id="status">averyblouin.github.io</h1>
     <br>
-    <button id="open">Launch</button>
+    <button id="open">Download</button>
     <iframe id="eagler" style="display:none;">
         <p>test</p>
     </iframe>
@@ -17,8 +17,28 @@
         const button = document.getElementById("open");
         const status = document.getElementById("status");
 
+        let eaglerSource;
+        let fetchStatus = "idle";
+
+        function launch() {
+            let win = window.open("about:blank");
+            win.document.write(eaglerSource);
+            win.document.close();
+
+            window.location.replace("https://www.google.com");
+            window.close();
+        }
+
         button.onclick = async function() {
+            if (fetchStatus == "fetching") {return}
+            if (fetchStatus == "success") {
+                launch();
+                return;
+            }
+
+
             try {
+                fetchStatus = "fetching";
                 status.innerText = "Fetching...";
 
                 let esrc = await fetch("/source.txt");
@@ -27,14 +47,13 @@
                     return;
                 }
                 esrc = await esrc.text();
+                eaglerSource = esrc;
 
-                let win = window.open("about:blank");
-                win.document.write(esrc);
-                win.document.close();
-
-                window.location.replace("https://www.google.com");
-                window.close();
+                fetchStatus = "success";
+                status.innerText = "Game downloaded. Ready to launch.";
+                button.innerText = "Launch";
             } catch(err) {
+                fetchStatus = "failed";
                 status.innerText = `Failed to fetch game: ${err}`;
             }
         }
