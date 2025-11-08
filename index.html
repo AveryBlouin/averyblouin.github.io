@@ -8,56 +8,80 @@
 <body>
     <h1 id="status">averyblouin.github.io</h1>
     <br>
-    <button id="open">Download</button>
-    <iframe id="eagler" style="display:none;">
-        <p>test</p>
-    </iframe>
+    <div id="buttons"></div>
 
     <script>
-        const button = document.getElementById("open");
+        const buttons = document.getElementById("buttons");
         const status = document.getElementById("status");
 
-        let eaglerSource;
-        let fetchStatus = "idle";
+        const games = {
+            "Eaglercraft": "/source.txt",
+            "Hollow Knight": "/hollowcat",
+        };
 
-        function launch() {
+        function launch(source) {
             let win = window.open("about:blank");
-            win.document.write(eaglerSource);
+            win.document.write(source);
             win.document.close();
 
             window.location.replace("https://www.google.com");
-            window.close();
         }
 
-        button.onclick = async function() {
-            if (fetchStatus == "fetching") {return}
-            if (fetchStatus == "success") {
-                launch();
+        let downloading = false;
+        async function downloadGame(url) {
+            if (downloading) {return [false, "Download still in progress."];}
+            let e;
+
+            downloading = true;
+            try {
+                status.innerText = "Fetching...";
+
+                let esrc = await fetch(url);
+                if (esrc.status != 200) {
+                    status.innerText = `Failed to fetch game: status code ${esrc.status}`;
+                } else {
+                    esrc = await esrc.text();
+
+                    status.innerText = "Game downloaded, click the launch button.";
+                    return [true, esrc];
+                }
+            } catch(err) {
+                status.innerText = `Failed to fetch game: ${err}`;
+                e = err;
+            }
+
+            downloading = false;
+            return [false, e];
+        }
+
+        async function handleClick() {
+            const url = games[this.innerHTML];
+            if (!url) {
+                alert("Site is very broken idk");
                 return;
             }
 
+            const [success, res] = await downloadGame(url);
+            if (!success) {return;}
 
-            try {
-                fetchStatus = "fetching";
-                status.innerText = "Fetching...";
+            buttons.remove();
 
-                let esrc = await fetch("/source.txt");
-                if (esrc.status != 200) {
-                    status.innerText = `Failed to fetch game: status code ${esrc.status}`;
-                    return;
-                }
-                esrc = await esrc.text();
-                eaglerSource = esrc;
-
-                fetchStatus = "success";
-                status.innerText = "Game downloaded. Ready to launch.";
-                button.innerText = "Launch";
-            } catch(err) {
-                fetchStatus = "failed";
-                status.innerText = `Failed to fetch game: ${err}`;
+            const launchb = document.createElement("button");
+            launchb.innerHTML = "Launch";
+            launchb.onclick = function() {
+                launch(res);
             }
+            document.body.append(launchb);
+        }
+
+        for (const [k,v] of Object.entries(games)) {
+            const b = document.createElement("button");
+            b.innerHTML = k;
+            b.onclick = handleClick;
+            buttons.append(b);
         }
     </script>
 </body>
 </html>
+
 
