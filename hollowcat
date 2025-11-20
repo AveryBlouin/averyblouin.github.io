@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google</title>
     <base href="https://cdn.jsdelivr.net/gh/web-ports/hollow-knight@latest/">
-
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-    <script>eruda.init();</script>
-
     <style>
         #unity-container{position:fixed; inset:0; display:none;}
         #unity-canvas{display:block; width:100%; height:100%; background:#000;}
