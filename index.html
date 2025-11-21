@@ -17,10 +17,13 @@
         const games = {
             "Eaglercraft": "/source.txt",
             "Hollow Knight": "/hollowcat",
+            "Celeste": "/celeste-wasm/index.html",
         };
 
         function launch(source) {
             let win = window.open("about:blank");
+            let iframe = win.document.createElement("iframe");
+
             win.document.write(source);
             win.document.close();
 
