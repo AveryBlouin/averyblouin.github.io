@@ -9,20 +9,121 @@
     <script>eruda.init();</script>
 </head>
 <body>
-    <textarea id="input"></textarea>
+    <h2 id="statustext">Eval Page</h2>
+    <textarea id="codeinput"></textarea>
+    <textarea id="htmlinput"></textarea>
     <br>
     <button id="run">Evaluate</button>
+    <br>
+
+    <label id="windowurl">New window URL:</label>
+    <input id="windowurlinput" value="about:blank">
+    <br>
+
+    <label>Load from URL instead:</label>
+    <input id="loadurl" type="checkbox">
+    <div id="loadfromurldiv" style="display: none;">
+        <label>URL:</label>
+        <input id="loadfromurlinput">
+        <br>
+        <label>Should fetch the URL:</label>
+        <input id="fetchurl" type="checkbox">
+    </div>
+    <br>
+
+    <label>Load eruda:</label>
+    <input id="loaderuda" type="checkbox">
+    <br>
+
+    <label>Load in iframe:</label>
+    <input id="loadiframe" type="checkbox">
+    <button id="deleteiframe" style="display:none;">Delete Iframe</button>
+    <br>
 
     <script>
-        const input = document.getElementById("input");
-        const run = document.getElementById("run");
+        loadurl.addEventListener("change", () => {
+            loadfromurldiv.style.display = loadurl.checked ? "" : "none";
+        })
+        loadiframe.addEventListener("change", () => {
+            deleteiframe.style.display = loadiframe.checked ? "" : "none";
+        })
 
-        run.addEventListener("click", () => {
-            const url = `data:text/javascript;charset=utf-8;base64,${btoa(input.value)}`;
+        let SANDBOX_FRAME;
+        deleteiframe.addEventListener("click", () => {
+            if (SANDBOX_FRAME) {
+                SANDBOX_FRAME.remove();
+            }
+        })
+
+        run.addEventListener("click", async () => {
+            let doc = document;
+            let code = codeinput.value;
+            let html = htmlinput.value;
+
+            let setSource = false;
+
+            if (loadurl.checked) {
+                if (fetchurl.checked) {
+                    statustext.innerText = "Fetching: " + loadfromurlinput.value;
+                    let r;
+                    try {
+                        r = await fetch(loadfromurlinput.value);
+                        r = await r.text();
+                    } catch(err) {
+                        statustext.innerText = "Failed: " + err;
+                        return;
+                    }
+
+                    html = r;
+                } else {
+                    setSource = true;
+                }
+            }
+
+            if (loadiframe.checked) {
+                if (SANDBOX_FRAME) {
+                    SANDBOX_FRAME.remove();
+                }
+
+                let iframe = document.createElement("iframe");
+                SANDBOX_FRAME = iframe;
+                if (setSource) {
+                    iframe.src = loadfromurlinput.value;
+                    document.body.append(iframe);
+                } else {
+                    document.body.append(iframe);
+                    iframe.contentDocument.write(html);
+                    iframe.contentDocument.close();
+                }
+
+                doc = iframe.contentDocument;
+            } else if (htmlinput.value != "") {
+                let url = setSource ? loadfromurlinput.value : windowurlinput.value;
+
+                let win = window.open(url);
+                doc = win.document;
+
+                alert(doc.readyState);
+                
+                if (!setSource) {
+                    doc.write(html);
+                    doc.close();
+                }
+            }
+
+            if (loaderuda.checked && doc != document) {
+                const script = doc.createElement("script");
+                script.src = "https://cdn.jsdelivr.net/npm/eruda";
+                doc.head.appendChild(script);
+        
+                code = `eruda.init();\n` + code;
+            }
+
+            const url = `data:text/javascript;charset=utf-8;base64,${btoa(code)}`;
 
             const script = document.createElement("script");
             script.src = url;
-            document.body.appendChild(script);
+            doc.body.appendChild(script);
         })
     </script>
 </body>
