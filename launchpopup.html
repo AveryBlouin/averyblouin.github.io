@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        (async () => {
+            let res = await fetch("/eval.html");
+            res = await res.text();
+
+            const win = window.open("about:blank");
+            if (!win) {
+                prompt("Failed to open window, open the following url and allow 'Pop-ups and redirects':","chrome://settings/content/siteDetails?site="+window.location.origin);
+                return;
+            }
+
+            win.document.write(res);
+            win.document.close();
+        })()
+    </script>
+</body>
+</html>
