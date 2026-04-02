@@ -7,6 +7,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     addResourcesToCache([
       "/eval.html",
+      "/launchpopup.html",
       "https://cdn.jsdelivr.net/npm/eruda",
     ]),
   );
