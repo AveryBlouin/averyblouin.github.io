@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button id="register">Register ServiceWorker</button>
+    <br>
+    <button id="unregister">Unregister ServiceWorkers</button>
+    <br>
+    <button id="fetchall">Fetch ServiceWorkers</button>
+    <div id="serviceworkerlist"></div>
+
+    <script>
+        register.onclick = async () => {
+            serviceworkerlist.innerText = "Registering worker...";
+            const registration = await navigator.serviceWorker.register('/serveeval.js');
+            serviceworkerlist.innerText = `Registered with scope: ${registration.scope}`;
+        }
+
+        unregister.onclick = async () => {
+            serviceworkerlist.innerText = "Unregistering workers...";
+
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for(let registration of registrations) {
+                registration.unregister()
+            }
+
+            serviceworkerlist.innerText = "All workers unregistered!";
+        }
+
+        fetchall.onclick = async () => {
+            let text = "";
+
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for(let idx in registrations) {
+                const registration = registrations[idx];
+                text += `Worker #${idx}\nScope: ${registration.scope}\nActive: ${registration.active}\nScript URL: ${registration.active?.scriptURL}\nState: ${registration.active?.state}\n\n`;
+            }
+
+            if (registrations.length == 0) {
+                text = "No registered workers!";
+            }
+
+            serviceworkerlist.innerText = text;
+        }
+
+        fetchall.onclick();
+    </script>
+</body>
+</html>
